@@ -78,15 +78,52 @@
         $('#messages').append($('<li>').text (msg));
       });
 
-      socket.on('mouseMsg', (data) => {
+      socket.on('mouseMsgDown', (data) => {
+        penDown = true;
+
+        // data = {
+        //   x: evt.clientX,
+        //   y: evt.clientY
+        // }
+        
+        last_x = data.x;
+        last_y = data.y;
+        // brushShow(data);
+        // posXY(data);
+      });
+
+      socket.on('mouseMsgMove', (data) => {
         brushShow(data);
       });
+
+      socket.on('mouseMsgUp', (data) => {
+        penDown = false;
+      });
+
+      
+      
+      
+
 
 
 
       // **********BRUSH CANVAS*************
       let canvas = document.getElementById("canvas");
       let ctx = canvas.getContext("2d");
+
+      let penDown = false;
+      let last_x = 0;
+      let last_y = 0;
+      let data = {
+        x: 0,
+        y: 0
+
+      };
+      // let lastData = {
+      //   x: 0,
+      //   y: 0
+
+      // };
 
       // put canvas in all available screen
       canvas.width = window.innerWidth;
@@ -96,33 +133,141 @@
 
 
       canvas.addEventListener("mousedown", function(evt){
-        let data = {
+        // penDown = true;
+        // data = {
+        //   x: evt.clientX,
+        //   y: evt.clientY
+        // }
+        // last_x = data.x;
+        // last_y = data.y;
+        console.log("mousedown")
+
+        // socket.emit('mouseMsg', data);
+        // brushDraw();
+        posXY(evt);
+      });
+
+      function posXY(evt){
+
+        penDown = true;
+
+        data = {
+          x: evt.clientX,
+          y: evt.clientY
+        }
+        
+        last_x = data.x;
+        last_y = data.y;
+
+        brushDraw(evt);
+        socket.emit('mouseMsgDown', data);
+
+      }
+
+      canvas.addEventListener("mousemove", function(evt){
+        // // penDown = true;
+        // data = {
+        //   x: evt.clientX,
+        //   y: evt.clientY
+        // }
+        // last_x = data.x;
+        // last_y = data.y;
+      
+        console.log("move");
+        brushDraw(evt);
+        socket.emit('mouseMsgMove', data);
+
+      });
+  
+      canvas.addEventListener("mouseup", function(evt){
+        penDown = false;
+        console.log("up",penDown)
+        socket.emit('mouseMsgUp', data);
+      })
+
+      // function brushDraw(){
+      //   ctx.fillStyle ="blue";
+      //   let thickness = 20;
+      //   ctx.beginPath();
+      //   ctx.arc(data.x, data.y, thickness, 0, Math.PI*2);
+      //   ctx.fill();
+      //   console.log("data", data);
+
+      // }
+
+      // function brushShow(data){
+      //   ctx.fillStyle ="red";
+      //   let thickness = 10;
+      //   ctx.beginPath();
+      //   ctx.arc(data.x, data.y, thickness, 0, Math.PI*2);
+      //   ctx.fill();
+      //   console.log("data", data);
+      // }
+
+      function brushDraw(evt){
+        if (penDown === false) {
+          return;
+        }
+        // let x = evt.clientX;
+        // let y = evt.clientY;
+        // last_x = x;
+        // last_y = y;
+
+        data = {
           x: evt.clientX,
           y: evt.clientY
         }
 
-      socket.emit('mouseMsg', data);
-        brushDraw();
-      });
+        ctx.strokeStyle = "blue";
+        ctx.fillStyle = "blue";
 
-      function brushDraw(){
-        ctx.fillStyle ="blue";
-        let thickness = 20;
         ctx.beginPath();
-        ctx.arc(data.x, data.y, thickness, 0, Math.PI*2);
+        let thickness = 20;
+        ctx.lineWidth = thickness;
+        ctx.moveTo(last_x, last_y);
+        ctx.lineTo(data.x, data.y);
+
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(data.x, data.y, thickness / 2, 0, Math.PI * 2);
         ctx.fill();
-        console.log("data", data);
+
+        last_x = data.x;
+        last_y = data.y;
+
+        // socket.emit('mouseMsgMove', data);
+      
       }
 
       function brushShow(data){
-        ctx.fillStyle ="blue";
-        let thickness = 20;
-        ctx.beginPath();
-        ctx.arc(data.x, data.y, thickness, 0, Math.PI*2);
-        ctx.fill();
-        console.log("data", data);
-      }
+        if (penDown === false) {
+          return;
+        }
+        // let x = evt.clientX;
+        // let y = evt.clientY;
 
+        ctx.strokeStyle = "blue";
+        ctx.fillStyle = "blue";
+
+        ctx.beginPath();
+        let thickness = 20;
+        ctx.lineWidth = thickness;
+        ctx.moveTo(last_x, last_y);
+        ctx.lineTo(data.x, data.y);
+
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(data.x, data.y, thickness / 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        last_x = data.x;
+        last_y = data.y;
+
+       
+
+      }
      
     //////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////  

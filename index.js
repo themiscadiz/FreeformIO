@@ -20,9 +20,19 @@ io.on('connection', (socket) => {
         io.emit('message', msg);
     });
 
-    socket.on('mouseMsg', (data) => {
-        console.log(`mouseMsg: ${data}`);
-        io.emit('mouseMsg', data);
+    socket.on('mouseMsgDown', (data) => {
+        console.log(`mouseMsgDown: ${data}`);
+        io.emit('mouseMsgDown', data);
+    });
+
+    socket.on('mouseMsgMove', (data) => {
+        console.log(`mouseMsgMove: ${data}`);
+        io.emit('mouseMsgMove', data);
+    });
+
+    socket.on('mouseMsgUp', (data) => {
+        console.log(`mouseMsgUp: ${data}`);
+        io.emit('mouseMsgUp', data);
     });
 
     socket.on('disconnect', () => {
